@@ -27,6 +27,6 @@
 # Workstation heartbeat
 */20 * * * * echo 'padam padam' 2>&1 | /usr/bin/logger -t Heartbeat
 # Low space on workstation warning
-0 * * * * FREE=$(df /media/data3 --output=avail | tail -n 1 );FREEHR=$(df /media/data3 --output=avail -h | tail -n 1); if [ $FREE -lt 838860371 ]; then echo "Less than 800GB on data1 ("$FREEHR"B)"; fi | /usr/bin/logger -t data1_freespace
+0 * * * * FREE=$(df /media/data3 --output=avail | tail -n 1 );FREEHR=$(df /media/data3 --output=avail -h | tail -n 1); if [ $FREE -lt 838860371 ]; then echo "Less than 800GB on workstation share ("$FREEHR"B)"; fi | /usr/bin/logger -t workstation_freespace
 # DNANexus platform integrity test - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the sys log to denote if the script passed/failed, as if the script fails script generated error messages may not be issued.
 0 4 * * 3 bash /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/DNANexus_Integrity_Check.sh > /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/logs/$(date "+\%y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "DNANexus integrity script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_fail; else echo "successful completion of Nexy integrity check script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_pass; fi
