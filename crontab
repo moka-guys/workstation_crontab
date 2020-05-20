@@ -32,3 +32,5 @@
 0 4 * * 3 bash /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/DNANexus_Integrity_Check.sh > /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/logs/$(date "+\%y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "DNANexus integrity script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_fail; else echo "successful completion of Nexy integrity check script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_pass; fi
 # Workstation cleaner - Deletes runfolders uploaded to DNANexus every Monday at 6am
 0 6 * * 1 /usr/local/src/mokaguys/apps/workstation_housekeeping/wscleaner/wscleaner_command.sh
+# Workstation ngrok script - on reboot, starts ngrok and writes url to syslog
+@reboot /usr/local/src/mokaguys/apps/workstation_housekeeping/ngrok_start.sh
