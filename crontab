@@ -34,3 +34,5 @@
 0 6 * * 1 /usr/local/src/mokaguys/apps/workstation_housekeeping/wscleaner/wscleaner_command.sh
 # Workstation ngrok script - on reboot, starts ngrok and writes url to syslog
 @reboot /usr/local/src/mokaguys/apps/workstation_housekeeping/ngrok_start.sh
+# clean up docker
+40 12 * * * docker ps -a | grep Exited | cut -b1-12 | xargs docker rm
