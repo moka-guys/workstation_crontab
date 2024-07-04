@@ -1,38 +1,30 @@
-# Edit this file to introduce tasks to be run by cron.
-# 
-# Each task to run has to be defined through a single line
-# indicating with different fields when the task will be run
-# and what command to run for the task
-# 
-# To define the time you can provide concrete values for
-# minute (m), hour (h), day of month (dom), month (mon),
-# and day of week (dow) or use '*' in these fields (for 'any').# 
-# Notice that tasks will be started based on the cron's system
-# daemon's notion of time and timezones.
-# 
-# Output of the crontab jobs (including errors) is sent through
-# email to the user the crontab file belongs to (unless redirected).
-# 
-# For example, you can run a backup of all your user accounts
-# at 5 a.m every week with:
-# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
-# 
-# For more information see the manual pages of crontab(5) and cron(8)
-# 
-# m h  dom mon dow   command
-# Demultiplexing - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the sys log to denote if the script passed/failed, as if the script fails, script-generated error messages may not be issued.
-0,20,40 * * * * eval "$(/usr/local/bin/miniconda3/bin/conda shell.bash hook)"; conda activate /home/mokaguys/.conda/envs/python3.10.6; cd /usr/local/src/mokaguys/apps/automate_demultiplex/; /usr/local/src/mokaguys/apps/automate_demultiplex/venv/bin/python3 -m demultiplex > /usr/local/src/mokaguys/automate_demultiplexing_logfiles/Demultiplex_cron_stdout/$(date "+\%Y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "demultiplex script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t demultiplex_script_fail; else echo "Successful completion of demultiplex script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t demultiplex_script_pass; fi
-# Setoff_workflows - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the sys log to denote if the script passed/failed, as if the script fails, script-generated error messages may not be issued.
-5,25,45 * * * * eval "$(/usr/local/bin/miniconda3/bin/conda shell.bash hook)"; conda activate /home/mokaguys/.conda/envs/python3.10.6; cd /usr/local/src/mokaguys/apps/automate_demultiplex/; /usr/local/src/mokaguys/apps/automate_demultiplex/venv/bin/python3 -m setoff_workflows > /usr/local/src/mokaguys/automate_demultiplexing_logfiles/Setoff_workflows_cron_stdout/$(date "+\%Y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "Setoff_workflows script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t setoff_workflows_script_fail; else echo "Successful completion of setoff_workflows script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t setoff_workflows_script_success; fi
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user    command
+17 *    * * *    root    cd / && run-parts --report /etc/cron.hourly
+25 6    * * *    root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6    * * 7    root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6    1 * *    root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+# Demultiplexing - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the syslog
+0,20,40 * * * * mokaguys eval "$(/usr/local/bin/miniconda3/bin/conda shell.bash hook)"; conda activate /home/mokaguys/.conda/envs/python3.10.6; cd /usr/local/src/mokaguys/apps/automate_demultiplex/; /usr/local/src/mokaguys/apps/automate_demultiplex/venv/bin/python3 -m demultiplex > /usr/local/src/mokaguys/automate_demultiplexing_logfiles/Demultiplex_cron_stdout/$(date "+\%Y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "demultiplex script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t demultiplex_script_fail; else echo "Successful completion of demultiplex script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t demultiplex_script_pass; fi
+# Setoff_workflows - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the syslog
+5,25,45 * * * * mokaguys eval "$(/usr/local/bin/miniconda3/bin/conda shell.bash hook)"; conda activate /home/mokaguys/.conda/envs/python3.10.6; cd /usr/local/src/mokaguys/apps/automate_demultiplex/; /usr/local/src/mokaguys/apps/automate_demultiplex/venv/bin/python3 -m setoff_workflows > /usr/local/src/mokaguys/automate_demultiplexing_logfiles/Setoff_workflows_cron_stdout/$(date "+\%Y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "Setoff_workflows script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t setoff_workflows_script_fail; else echo "Successful completion of setoff_workflows script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t setoff_workflows_script_success; fi
 # Workstation heartbeat
-*/20 * * * * echo 'padam padam' 2>&1 | /usr/bin/logger -t Heartbeat
+*/20 * * * *    root    echo 'padam padam' 2>&1 | /usr/bin/logger -t Heartbeat
 # Low space on workstation warning
-0 * * * * FREE=$(df /media/data3 --output=avail | tail -n 1 );FREEHR=$(df /media/data3 --output=avail -h | tail -n 1); if [ $FREE -lt 838860371 ]; then echo "Less than 800GB on workstation share ("$FREEHR"B)"; fi | /usr/bin/logger -t workstation_freespace
-# DNANexus platform integrity test - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the sys log to denote if the script passed/failed, as if the script fails script generated error messages may not be issued.
-0 4 * * 3 bash /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/DNANexus_Integrity_Check.sh > /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/logs/$(date "+\%y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "DNANexus integrity script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_fail; else echo "successful completion of Nexy integrity check script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_pass; fi
+0 * * * *    root    FREE=$(df /media/data3 --output=avail | tail -n 1); FREEHR=$(df /media/data3 --output=avail -h | tail -n 1); if [ "$FREE" -lt 838860371 ]; then echo "Less than 800GB available on /media/data3: $FREEHR" | /usr/bin/logger -t workstation_freespace; fi
+# DNANexus platform integrity test - after running python script the status is checked. 0 = script completed without error. 1 = script did not complete. This status triggers an event to the syslog
+0 4 * * 3    root    bash /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/DNANexus_Integrity_Check.sh > /usr/local/src/mokaguys/apps/DNANexus_Integrity_Test/logs/$(date "+\%y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "DNANexus integrity script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_fail; else echo "successful completion of Nexy integrity check script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t Nexus_integrity_check_pass; fi
 # Workstation cleaner - Deletes runfolders uploaded to DNANexus every Monday at 6am
-0 6 * * 1 /usr/local/src/mokaguys/apps/workstation_housekeeping/wscleaner/wscleaner_command.sh
+0 6 * * 1    root    /usr/local/src/mokaguys/apps/workstation_housekeeping/wscleaner/wscleaner_command.sh > /usr/local/src/mokaguys/automate_demultiplexing_logfiles/Wscleaner_cron_stdout/$(date "+\%Y\%m\%d_\%H\%M\%S").txt 2>&1; status=$?; if [ $status -ne 0 ]; then echo "wscleaner script failed to complete " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t wscleaner_script_fail; else echo "Successful completion of wscleaner script " $(date "+\%y\%m\%d_\%H\%M\%S")|/usr/bin/logger -t wscleaner_script_success; fi
 # Workstation ngrok script - on reboot, starts ngrok and writes url to syslog
-@reboot /usr/local/src/mokaguys/apps/ngrok_start/ngrok_start.sh docker
+@reboot root    /usr/local/src/mokaguys/apps/ngrok_start/ngrok_start.sh docker
 # clean up docker
-40 12 * * * docker ps -a | grep Exited | cut -b1-12 | xargs docker rm
+40 12 * * *    root    docker ps -a | grep Exited | cut -b1-12 | xargs docker rm
